@@ -15,13 +15,14 @@ Nota Bene: *Hydra is in its early stage, so every of its aspects is subject to c
 
     while not stream.atEnd():
         let header = Header.read(stream)
+
         # Eventually do something with the frame header...
 
         case header.frame_type:
         of FrameType.Ping:
-            let frame = PingFrame.read(header, stream)
+            let frame = PingFrame.read(header, stream).unwrap()
         of FrameType.Data:
-            let frame = DataFrame.read(header, stream)
+            let frame = DataFrame.read(header, stream).unwrap()
         else:
             discard
 ```

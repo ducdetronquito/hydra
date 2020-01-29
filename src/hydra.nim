@@ -1,5 +1,3 @@
-import hydra/header
-import hydra/ping
+import hydra/[errors, header, ping, result]
 
-export header
-export ping
+export errors, header, ping, result
