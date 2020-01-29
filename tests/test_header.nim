@@ -6,9 +6,9 @@ import unittest
 suite "Frame Header":
 
     test "Frame Header":
-        var stream = newStringStream("\x00\x07\x4f\x06\x14\xFF\xFF\xFF\xFF")
+        var stream = newStringStream("\x00\x07\x4f\x06\x01\x2a\x00\x00\x00")
         var header = Frame.read_header(stream)
         check(header.length == 1871)
         check(header.frame_type == FrameType.Ping)
-        check(header.flags == '\x14')
-        check(header.stream_id == 2147483647)
+        check(header.flags == 1)
+        check(header.stream_id == 42)
