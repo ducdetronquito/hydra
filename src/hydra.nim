@@ -1,4 +1,3 @@
-import hydra/[frame, header]
+import hydra/header
 
-export frame
 export header
