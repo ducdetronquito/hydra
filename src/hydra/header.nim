@@ -2,6 +2,18 @@ import bitops
 import streams
 
 type
+    FrameType* = enum
+        Data = '\x00'
+        Headers = '\x01'
+        Priority = '\x02'
+        RstStream = '\x03'
+        Settings = '\x04'
+        PushPromise = '\x05'
+        Ping = '\x06'
+        GoAway = '\x07'
+        WindowUpdate = '\x08'
+        Continuation = '\x09'
+
     Header* = object
         # All frames begin with a fixed 9-octet header
         # +-----------------------------------------------+
@@ -19,7 +31,7 @@ type
         length* : uint32
 
         # Type: the 8-bit type of the frame.
-        frame_type*: char
+        frame_type*: FrameType
 
         # Flags: an 8-bit field reserved for boolean flags specific to the frame type.
         flags*: char
@@ -33,7 +45,7 @@ proc read*(cls: type[Header], buffer: StringStream): Header =
     let length = cast[uint32](buffer.readUint16()) + cast[uint32](buffer.readChar())
     return Header(
         length: length,
-        frame_type: buffer.readChar(),
+        frame_type: FrameType(buffer.readChar()),
         flags: buffer.readChar(),
         stream_id: buffer.readUInt32().bitand(0x7FFFFFFF)
     )
