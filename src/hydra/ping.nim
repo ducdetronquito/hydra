@@ -1,5 +1,9 @@
+import bitops
 import header
 import streams
+
+
+const PingAck = 1'u8
 
 
 type
@@ -12,7 +16,7 @@ type
         #  |                      Opaque Data (64)                         |
         #  |                                                               |
         #  +---------------------------------------------------------------+
-        header: Header
+        header*: Header
         opaque_data*: uint64
 
 
@@ -20,3 +24,7 @@ proc read*(cls: type[PingFrame], header: Header, stream: StringStream): PingFram
     # TODO: Handle when stream_id = 0x0 --> raises ProtocolError
     # TODO: Handle when lenght != 8 --> FrameSizeError
     return PingFrame(header: header, opaque_data: stream.readUint64())
+
+
+proc is_ack*(self: PingFrame): bool =
+    return self.header.flags.bitand(PingAck) == PingAck
