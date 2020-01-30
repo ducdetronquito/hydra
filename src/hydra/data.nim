@@ -1,3 +1,4 @@
+import errors
 import header
 import result
 import streams
@@ -24,6 +25,9 @@ type
 
 
 proc read*(cls: type[DataFrame], header: Header, stream: StringStream): Result[DataFrame, Error] =
+    if header.targets_connection_control_stream():
+        return Err(Error.ProtocolError)
+
     var data = newSeq[uint8](header.length)
     discard stream.readData(addr(data[0]), cast[int](header.length))
     let frame = DataFrame(header: header, data: data)

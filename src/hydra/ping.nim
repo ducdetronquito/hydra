@@ -1,11 +1,11 @@
 import bitops
+import errors
 import header
 import result
 import streams
 
 
 const PING_ACK = 1'u8
-const CONNECTION_CONTROL_STREAM_ID = 0'u8
 
 
 type
@@ -23,7 +23,7 @@ type
 
 
 proc read*(cls: type[PingFrame], header: Header, stream: StringStream): Result[PingFrame, Error] =
-    if header.stream_id != CONNECTION_CONTROL_STREAM_ID:
+    if not header.targets_connection_control_stream():
         return Err(Error.ProtocolError)
 
     if header.length != 8'u32:

@@ -46,6 +46,3 @@ template unwrap_error*[T, E](self: Result[T, E]): auto =
     if self.is_ok():
         raise newException(ResultError, "Trying to access an error but the result is a value: " & $self.value)
     self.error
-
-
-export errors

@@ -1,6 +1,8 @@
 import bitops
 import streams
 
+const CONNECTION_CONTROL_STREAM_ID = 0'u8
+
 type
     FrameType* = enum
         Data = 0'u8
@@ -49,3 +51,7 @@ proc read*(cls: type[Header], buffer: StringStream): Header =
         flags: buffer.readUint8(),
         stream_id: buffer.readUInt32().bitand(0x7FFFFFFF)
     )
+
+
+template targets_connection_control_stream*(self: Header): bool =
+    self.stream_id == CONNECTION_CONTROL_STREAM_ID
