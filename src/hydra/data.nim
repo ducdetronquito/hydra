@@ -1,8 +1,11 @@
+import bitops
 import errors
 import header
 import result
 import streams
 
+
+const DATA_END_STREAM = 1'u8
 
 type
     DataFrame* = object
@@ -32,3 +35,7 @@ proc read*(cls: type[DataFrame], header: Header, stream: StringStream): Result[D
     discard stream.readData(addr(data[0]), cast[int](header.length))
     let frame = DataFrame(header: header, data: data)
     return Ok(frame)
+
+
+proc is_end_stream*(self: DataFrame): bool =
+    return self.header.flags.bitand(DATA_END_STREAM) == DATA_END_STREAM

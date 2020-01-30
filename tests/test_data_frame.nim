@@ -18,3 +18,13 @@ suite "Data Frame":
         var stream = newStringStream("\x00")
         let result = DataFrame.read(header, stream)
         check(result.unwrap_error() == Error.ProtocolError)
+
+    test "Has flag END_STREAM":
+        let header = Header(frame_type: FrameType.Data, flags: 1'u8)
+        let frame = DataFrame(header: header)
+        check(frame.is_end_stream())
+
+    test "Does not have END_STREAM flag":
+        let header = Header(frame_type: FrameType.Data, flags: 254'u8)
+        let frame = DataFrame(header: header)
+        check(frame.is_end_stream() == false)

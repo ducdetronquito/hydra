@@ -34,4 +34,4 @@ proc read*(cls: type[PingFrame], header: Header, stream: StringStream): Result[P
 
 
 proc is_ack*(self: PingFrame): bool =
-    return self.header.flags.bitand(PING_ACK) == PingAck
+    return self.header.flags.bitand(PING_ACK) == PING_ACK
