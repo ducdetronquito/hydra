@@ -36,7 +36,7 @@ type
         frame_type*: FrameType
 
         # Flags: an 8-bit field reserved for boolean flags specific to the frame type.
-        flags*: uint8
+        flags*: byte
 
         # Stream ID: the stream identifier expressed as an unsigned 31-bit integer.
         # It is preceded by "R", a reserved 1-bit field.

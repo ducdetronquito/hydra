@@ -6,6 +6,7 @@ import streams
 
 
 const DATA_END_STREAM = 1'u8
+const DATA_PADDED = 8'u8
 
 type
     DataFrame* = object
@@ -24,14 +25,14 @@ type
         # |                           Padding (*)                         |
         # +---------------------------------------------------------------+
         header*: Header
-        data*: seq[uint8]
+        data*: seq[byte]
 
 
 proc read*(cls: type[DataFrame], header: Header, stream: StringStream): Result[DataFrame, Error] =
     if header.targets_connection_control_stream():
         return Err(Error.ProtocolError)
 
-    var data = newSeq[uint8](header.length)
+    var data = newSeq[byte](header.length)
     discard stream.readData(addr(data[0]), cast[int](header.length))
     let frame = DataFrame(header: header, data: data)
     return Ok(frame)
@@ -39,3 +40,6 @@ proc read*(cls: type[DataFrame], header: Header, stream: StringStream): Result[D
 
 proc is_end_stream*(self: DataFrame): bool =
     return self.header.flags.bitand(DATA_END_STREAM) == DATA_END_STREAM
+
+proc is_padded*(self: DataFrame): bool =
+    return self.header.flags.bitand(DATA_PADDED) == DATA_PADDED

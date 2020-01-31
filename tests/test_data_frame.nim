@@ -25,6 +25,22 @@ suite "Data Frame":
         check(frame.is_end_stream())
 
     test "Does not have END_STREAM flag":
-        let header = Header(frame_type: FrameType.Data, flags: 254'u8)
+        let header = Header(frame_type: FrameType.Data, flags: 2'u8)
         let frame = DataFrame(header: header)
         check(frame.is_end_stream() == false)
+
+    test "Has flag PADDED":
+        let header = Header(frame_type: FrameType.Data, flags: 8'u8)
+        let frame = DataFrame(header: header)
+        check(frame.is_padded())
+
+    test "Does not have PADDED flag":
+        let header = Header(frame_type: FrameType.Data, flags: 4'u8)
+        let frame = DataFrame(header: header)
+        check(frame.is_padded() == false)
+
+    test "Has flag END_STREAM and PADDED":
+        let header = Header(frame_type: FrameType.Data, flags: 15'u8)
+        let frame = DataFrame(header: header)
+        check(frame.is_end_stream())
+        check(frame.is_padded())
