@@ -15,3 +15,11 @@ type
         EnhanceYourCalm = 11'u32
         InadequateSecurity = 12'u32
         Http11Required = 13'u32
+        Unknown = 14'u32
+
+
+proc create*(cls: type[ErrorCode], value: uint32): ErrorCode =
+    if value < cast[uint32](ErrorCode.Unknown):
+        return ErrorCode(value)
+    else:
+        return ErrorCode.Unknown
