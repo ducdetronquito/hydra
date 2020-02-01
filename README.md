@@ -2,6 +2,7 @@
 
 HTTP/2 frames for Nim inspired by [Hyperframe](https://github.com/python-hyper/hyperframe)
 
+[![Build Status](https://api.travis-ci.org/ducdetronquito/hydra.svg?branch=master)](https://travis-ci.org/ducdetronquito/hydra) [![License](https://img.shields.io/badge/license-public%20domain-ff69b4.svg)](https://github.com/ducdetronquito/hydra#license)
 
 ## Usage
 
