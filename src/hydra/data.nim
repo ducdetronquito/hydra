@@ -1,5 +1,5 @@
 import bitops
-import errors
+import error_codes
 import header
 import result
 import streams
@@ -28,9 +28,9 @@ type
         data*: seq[byte]
 
 
-proc read*(cls: type[DataFrame], header: Header, stream: StringStream): Result[DataFrame, Error] =
+proc read*(cls: type[DataFrame], header: Header, stream: StringStream): Result[DataFrame, ErrorCode] =
     if header.targets_connection_control_stream():
-        return Err(Error.ProtocolError)
+        return Err(ErrorCode.Protocol)
 
     var frame = DataFrame(header: header)
 
@@ -39,7 +39,7 @@ proc read*(cls: type[DataFrame], header: Header, stream: StringStream): Result[D
     if frame.is_padded():
         pad_length = cast[int](stream.readUint8()) + 1
         if pad_length >= payload_length:
-            return Err(Error.ProtocolError)
+            return Err(ErrorCode.Protocol)
 
     let data_length = payload_length - pad_length
     var data = newSeq[byte](data_length)

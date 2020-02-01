@@ -1,3 +1,3 @@
-import hydra/[data, errors, header, ping, result]
+import hydra/[data, error_codes, header, ping, result]
 
-export data, errors, header, ping, result
+export data, error_codes, header, ping, result

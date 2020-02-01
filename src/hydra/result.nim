@@ -1,6 +1,3 @@
-import errors
-
-
 type
     ResultError* = object of Exception
 

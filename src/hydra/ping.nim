@@ -1,5 +1,5 @@
 import bitops
-import errors
+import error_codes
 import header
 import result
 import streams
@@ -22,12 +22,12 @@ type
         opaque_data*: uint64
 
 
-proc read*(cls: type[PingFrame], header: Header, stream: StringStream): Result[PingFrame, Error] =
+proc read*(cls: type[PingFrame], header: Header, stream: StringStream): Result[PingFrame, ErrorCode] =
     if not header.targets_connection_control_stream():
-        return Err(Error.ProtocolError)
+        return Err(ErrorCode.Protocol)
 
     if header.length != 8'u32:
-        return Err(Error.FrameSizeError)
+        return Err(ErrorCode.FrameSize)
 
     let frame = PingFrame(header: header, opaque_data: stream.readUint64())
     return Ok(frame)

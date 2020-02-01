@@ -25,13 +25,13 @@ suite "Data Frame":
         var stream = newStringStream(input)
         let header = Header(frame_type: FrameType.Data, length: 10'u32, stream_id: 1'u32, flags: 8'u8)
         let result = DataFrame.read(header, stream)
-        check(result.unwrap_error() == Error.ProtocolError)
+        check(result.unwrap_error() == ErrorCode.Protocol)
 
     test "Protocol error when targets the connection control stream":
         let header = Header(frame_type: FrameType.Data, length: 1'u32, stream_id: 0'u8)
         var stream = newStringStream("\x00")
         let result = DataFrame.read(header, stream)
-        check(result.unwrap_error() == Error.ProtocolError)
+        check(result.unwrap_error() == ErrorCode.Protocol)
 
     test "Has flag END_STREAM":
         let header = Header(frame_type: FrameType.Data, flags: 1'u8)
