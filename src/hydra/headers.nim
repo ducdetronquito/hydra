@@ -24,9 +24,7 @@ type
         # +---------------------------------------------------------------+
         header*: Header
         header_block_fragment*: seq[byte]
-        exclusive*: Option[bool]
-        stream_dependency*: Option[uint32]
-        weight*: Option[uint8]
+        priority*: Option[Priority]
 
 
 proc read*(cls: type[HeadersFrame], header: Header, stream: StringStream): Result[HeadersFrame, ErrorCode] =
@@ -35,21 +33,10 @@ proc read*(cls: type[HeadersFrame], header: Header, stream: StringStream): Resul
 
     var frame = HeadersFrame(header: header)
 
-    var exclusive = none(bool)
-    var stream_dependency = none(uint32)
-    var weight = none(uint8)
     var priority_length = 0
     if frame.has_priority():
-        var buffer = stream.readUint32()
-        stream_dependency = some(buffer.bitand(0x7FFFFFFF))
-        # The frame's priority is exclusive if the 32th bit is on
-        exclusive = some(buffer.bitand(2147483648'u32) == 2147483648'u32)
-        weight = some(stream.readUint8())
+        frame.priority = some(Priority.read(stream))
         priority_length = 5
-
-    frame.exclusive = exclusive
-    frame.stream_dependency = stream_dependency
-    frame.weight = weight
 
     let payload_length = cast[int](header.length)
     var pad_length = 0

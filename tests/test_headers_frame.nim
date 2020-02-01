@@ -26,9 +26,10 @@ suite "Headers Frame":
         var stream = newStringStream(input)
         let header = Header(frame_type: FrameType.Headers, length: 10'u32, stream_id: 1'u32, flags: 32'u8)
         let frame = HeadersFrame.read(header, stream).unwrap()
-        check(frame.weight.get() == 42'u8)
-        check(frame.exclusive.get() == true)
-        check(frame.stream_dependency.get() == 7'u32)
+        let priority = frame.priority.get()
+        check(priority.weight == 42'u8)
+        check(priority.exclusive == true)
+        check(priority.stream_dependency == 7'u32)
         check(frame.header_block_fragment == @[1'u8, 1'u8, 1'u8, 1'u8, 1'u8])
 
     test "Protocol error when the payload is only padding without data":

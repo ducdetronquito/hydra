@@ -4,7 +4,7 @@ import streams
 const CONNECTION_CONTROL_STREAM_ID = 0'u8
 
 type
-    FrameType* = enum
+    FrameType* {.pure.} = enum
         Data = 0'u8
         Headers = 1'u8
         Priority = 2'u8
@@ -55,3 +55,23 @@ proc read*(cls: type[Header], buffer: StringStream): Header =
 
 template targets_connection_control_stream*(self: Header): bool =
     self.stream_id == CONNECTION_CONTROL_STREAM_ID
+
+
+type
+    Priority* = object
+        exclusive*: bool
+        stream_dependency*: uint32
+        weight*: uint8
+
+
+proc has_highest_order_bit_activated(value: uint32): bool =
+    return value.bitand(2147483648'u32) == 2147483648'u32
+
+
+proc read*(cls: type[Priority], buffer: StringStream): Priority =
+    let tmp = buffer.readUint32()
+    return Priority(
+        stream_dependency: tmp.bitand(0x7FFFFFFF),
+        exclusive: tmp.has_highest_order_bit_activated(),
+        weight: buffer.readUint8()
+    )

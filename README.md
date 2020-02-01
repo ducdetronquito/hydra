@@ -24,6 +24,8 @@ Nota Bene: *Hydra is in its early stage, so every of its aspects is subject to c
             let frame = DataFrame.read(header, stream).unwrap()
         of FrameType.Headers:
             let frame = HeadersFrame.read(header, stream).unwrap()
+        of FrameType.Priority:
+            let frame = PriorityFrame.read(header, stream).unwrap()
         of FrameType.RstStream:
             let frame = RstStream.read(header, stream).unwrap()
         of FrameType.Ping:
