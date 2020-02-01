@@ -32,9 +32,22 @@ proc read*(cls: type[DataFrame], header: Header, stream: StringStream): Result[D
     if header.targets_connection_control_stream():
         return Err(Error.ProtocolError)
 
-    var data = newSeq[byte](header.length)
-    discard stream.readData(addr(data[0]), cast[int](header.length))
-    let frame = DataFrame(header: header, data: data)
+    var frame = DataFrame(header: header)
+
+    let payload_length = cast[int](header.length)
+    var pad_length = 0
+    if frame.is_padded():
+        pad_length = cast[int](stream.readUint8()) + 1
+        if pad_length >= payload_length:
+            return Err(Error.ProtocolError)
+
+    let data_length = payload_length - pad_length
+    var data = newSeq[byte](data_length)
+    discard stream.readData(addr(data[0]), data_length)
+    frame.data = data
+
+    stream.setPosition(stream.getPosition() + pad_length)
+
     return Ok(frame)
 
 
