@@ -20,12 +20,14 @@ Nota Bene: *Hydra is in its early stage, so every of its aspects is subject to c
         # Eventually do something with the frame header...
 
         case header.frame_type:
-        of FrameType.Ping:
-            let frame = PingFrame.read(header, stream).unwrap()
         of FrameType.Data:
             let frame = DataFrame.read(header, stream).unwrap()
+        of FrameType.Headers:
+            let frame = HeadersFrame.read(header, stream).unwrap()
         of FrameType.RstStream:
             let frame = RstStream.read(header, stream).unwrap()
+        of FrameType.Ping:
+            let frame = PingFrame.read(header, stream).unwrap()
         else:
             discard
 ```

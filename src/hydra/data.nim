@@ -17,10 +17,10 @@ type
         # Data frames may also contain a padding to obscure the size of messages,
         # which is considered a security feature.
         # Cf: https://tools.ietf.org/html/rfc7540#section-6.1
-        # +-----------------------+
-        # |Optional Pad Length (8)|
-        # +-----------------------+---------------------------------------+
-        # |                            Data (*)                           |
+        # +-----------------+
+        # | Pad Length? (8) |
+        # +-----------------+---------------------------------------------+
+        # |                           Data (*)                            |
         # +---------------------------------------------------------------+
         # |                           Padding (*)                         |
         # +---------------------------------------------------------------+

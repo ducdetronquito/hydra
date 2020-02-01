@@ -33,13 +33,13 @@ template is_ok*[T, E](self: Result[T, E]): bool =
     self.ok
 
 
-template unwrap*[T, E](self: Result[T, E]): auto =
+proc unwrap*[T, E](self: Result[T, E]): T =
     if self.is_err():
         raise newException(ResultError, "Trying to access a value but the result is an error: " & $self.error)
-    self.value
+    return self.value
 
 
-template unwrap_error*[T, E](self: Result[T, E]): auto =
+proc unwrap_error*[T, E](self: Result[T, E]): E =
     if self.is_ok():
         raise newException(ResultError, "Trying to access an error but the result is a value: " & $self.value)
-    self.error
+    return self.error
