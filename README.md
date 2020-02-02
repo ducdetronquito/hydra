@@ -27,7 +27,9 @@ Nota Bene: *Hydra is in its early stage, so every of its aspects is subject to c
         of FrameType.Priority:
             let frame = PriorityFrame.read(header, stream).unwrap()
         of FrameType.RstStream:
-            let frame = RstStream.read(header, stream).unwrap()
+            let frame = RstStreamFrame.read(header, stream).unwrap()
+        of FrameType.Settings:
+            let frame = SettingsFrame.read(header, stream).unwrap()
         of FrameType.Ping:
             let frame = PingFrame.read(header, stream).unwrap()
         else:
