@@ -15,7 +15,7 @@ suite "RstStream Frame":
         var stream = newStringStream("\xff\xff\xff\xff")
         let header = Header(frame_type: FrameType.RstStream, length: 4'u32, stream_id: 1'u32)
         let result = RstStreamFrame.read(header, stream)
-        check(result.unwrap().error_code == ErrorCode.Unknown)
+        check(result.unwrap().error_code == ErrorCode.No)
 
     test "Protocol error when targets the connection control stream":
         let header = Header(frame_type: FrameType.RstStream, length: 4'u32, stream_id: 0'u8)

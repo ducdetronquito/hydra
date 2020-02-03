@@ -15,11 +15,10 @@ type
         EnhanceYourCalm = 11'u32
         InadequateSecurity = 12'u32
         Http11Required = 13'u32
-        Unknown = 14'u32
 
 
 proc create*(cls: type[ErrorCode], value: uint32): ErrorCode =
-    if value < cast[uint32](ErrorCode.Unknown):
-        return ErrorCode(value)
+    if value > cast[uint32](ErrorCode.Http11Required):
+        return ErrorCode.No
     else:
-        return ErrorCode.Unknown
+        return ErrorCode(value)

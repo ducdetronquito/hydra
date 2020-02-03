@@ -8,6 +8,7 @@ type
     PingFrame* = object
         # The PING frame is a mechanism for measuring a minimal round-trip time from the sender,
         # as well as determining whether an idle connection is still functional.
+        #
         # Cf: https://httpwg.org/specs/rfc7540.html#rfc.section.6.7
         #  +---------------------------------------------------------------+
         #  |                                                               |
