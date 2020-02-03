@@ -13,30 +13,29 @@ Nota Bene: *Hydra is in its early stage, so every of its aspects is subject to c
 
     var stream = newStringStream("......")
 
-    while not stream.atEnd():
-        let header = Header.read(stream)
+    let header = Header.read(stream).unwrap()
 
-        # Eventually do something with the frame header...
+    # Eventually do something with the frame header...
 
-        case header.frame_type:
-        of FrameType.Data:
-            let frame = DataFrame.read(header, stream).unwrap()
-        of FrameType.Headers:
-            let frame = HeadersFrame.read(header, stream).unwrap()
-        of FrameType.Priority:
-            let frame = PriorityFrame.read(header, stream).unwrap()
-        of FrameType.RstStream:
-            let frame = RstStreamFrame.read(header, stream).unwrap()
-        of FrameType.Settings:
-            let frame = SettingsFrame.read(header, stream).unwrap()
-        of FrameType.PushPromise:
-            let frame = PushPromise.read(header, stream).unwrap()
-        of FrameType.Ping:
-            let frame = PingFrame.read(header, stream).unwrap()
-        of FrameType.GoAway:
-            let frame = GoAwayFrame.read(header, stream).unwrap()
-        else:
-            discard
+    case header.frame_type:
+    of FrameType.Data:
+        let frame = DataFrame.read(header, stream).unwrap()
+    of FrameType.Headers:
+        let frame = HeadersFrame.read(header, stream).unwrap()
+    of FrameType.Priority:
+        let frame = PriorityFrame.read(header, stream).unwrap()
+    of FrameType.RstStream:
+        let frame = RstStreamFrame.read(header, stream).unwrap()
+    of FrameType.Settings:
+        let frame = SettingsFrame.read(header, stream).unwrap()
+    of FrameType.PushPromise:
+        let frame = PushPromise.read(header, stream).unwrap()
+    of FrameType.Ping:
+        let frame = PingFrame.read(header, stream).unwrap()
+    of FrameType.GoAway:
+        let frame = GoAwayFrame.read(header, stream).unwrap()
+    else:
+        discard
 ```
 
 ## License

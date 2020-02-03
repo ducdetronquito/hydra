@@ -16,11 +16,11 @@ type
 
 
 proc read*(cls: type[RstStreamFrame], header: Header, stream: StringStream): Result[RstStreamFrame, ErrorCode] =
-    if header.targets_connection_control_stream():
-        return Err(ErrorCode.Protocol)
-
     if header.length != 4'u32:
         return Err(ErrorCode.FrameSize)
+
+    if header.targets_connection_control_stream():
+        return Err(ErrorCode.Protocol)
 
     let error_code = ErrorCode.read(stream)
     return Ok(RstStreamFrame(header: header, error_code: error_code))

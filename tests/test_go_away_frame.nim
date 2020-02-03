@@ -27,7 +27,7 @@ suite "Go Away Frame":
         check(frame.error_code == ErrorCode.No)
 
     test "Protocol error when does not target the connection control stream":
-        var stream = newStringStream("")
-        let header = Header(frame_type: FrameType.GoAway, length: 4'u32, stream_id: 1'u8)
+        var stream = newStringStream("\x2a\x00\x00\x00\x0b\x00\x00\x00")
+        let header = Header(frame_type: FrameType.GoAway, length: 8'u32, stream_id: 1'u8)
         let error = GoAwayFrame.read(header, stream).unwrap_error()
         check(error == ErrorCode.Protocol)

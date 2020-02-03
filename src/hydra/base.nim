@@ -3,7 +3,18 @@ import error_codes
 import result
 import streams
 
-const CONNECTION_CONTROL_STREAM_ID = 0'u8
+
+type
+    StreamId* = uint32
+
+
+proc create*(cls: type[StreamId], value: uint32): StreamId =
+    return StreamId(value.bitand(0x7FFFFFFF))
+
+
+proc read*(cls: type[StreamId], stream: StringStream): StreamId =
+    return StreamId.create(stream.readUint32())
+
 
 type
     FrameType* {.pure.} = enum
@@ -44,31 +55,43 @@ type
         # It is preceded by "R", a reserved 1-bit field.
         stream_id*: uint32
 
+const CONNECTION_CONTROL_STREAM_ID = 0'u8
 
-proc read*(cls: type[Header], buffer: StringStream): Header =
-    let length =  cast[uint32](buffer.readUint16()) + cast[uint32](buffer.readUint8())
-    return Header(
-        length: length,
-        frame_type: FrameType(buffer.readUint8()),
-        flags: buffer.readUint8(),
-        stream_id: buffer.readUInt32().bitand(0x7FFFFFFF)
-    )
+
+template can_read*(stream: StringStream, length: int): bool =
+    stream.data.len() >= stream.getPosition() + length
+
+
+proc has_payload_with_header_block(self: Header): bool =
+    case self.frame_type:
+    of FrameType.Headers, FrameType.Settings, FrameType.PushPromise, FrameType.Continuation:
+        return true
+    else:
+        return false
 
 
 template targets_connection_control_stream*(self: Header): bool =
     self.stream_id == CONNECTION_CONTROL_STREAM_ID
 
 
-type
-    StreamId* = uint32
+proc read*(cls: type[Header], stream: StringStream): Result[Header, ErrorCode] =
+    if not stream.can_read(9):
+        return Err(ErrorCode.FrameSize)
 
+    let length =  cast[uint32](stream.readUint16()) + cast[uint32](stream.readUint8())
+    let frame_type = FrameType(stream.readUint8())
+    let flags = stream.readUint8()
+    let stream_id = StreamId.read(stream)
 
-proc create*(cls: type[StreamId], value: uint32): StreamId =
-    return StreamId(value.bitand(0x7FFFFFFF))
+    let header = Header(length: length, frame_type: frame_type, flags: flags, stream_id: stream_id)
 
+    if stream.can_read(cast[int](length)):
+        return Ok(header)
 
-proc read*(cls: type[StreamId], stream: StringStream): StreamId =
-    return StreamId.create(stream.readUint32())
+    if header.targets_connection_control_stream() or header.has_payload_with_header_block():
+        return Err(ErrorCode.Protocol)
+    else:
+        return Err(ErrorCode.FrameSize)
 
 
 type
@@ -91,13 +114,13 @@ proc read*(cls: type[Priority], buffer: StringStream): Priority =
     )
 
 
-proc read_bytes*(stream: StringStream, length: int, padding: int = 0): Result[seq[byte], ErrorCode] =
+proc read_bytes*(self: StringStream, length: int, padding: int = 0): Result[seq[byte], ErrorCode] =
     var payload_length = length - padding
 
     var data = newSeq[byte](payload_length)
-    discard stream.readData(addr(data[0]), payload_length)
+    discard self.readData(addr(data[0]), payload_length)
     if padding != 0:
-        stream.setPosition(stream.getPosition() + padding)
+        self.setPosition(self.getPosition() + padding)
 
     return Ok(data)
 

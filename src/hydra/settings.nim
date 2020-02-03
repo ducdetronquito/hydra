@@ -37,8 +37,6 @@ type
 
 
 proc read*(cls: type[SettingsFrame], header: Header, stream: StringStream): Result[SettingsFrame, ErrorCode] =
-    # TODO: handle the following case
-    # A badly formed or incomplete SETTINGS frame MUST be treated as a connection error of type PROTOCOL_ERROR.
     if not header.targets_connection_control_stream():
         return Err(ErrorCode.Protocol)
 

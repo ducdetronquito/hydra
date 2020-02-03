@@ -42,8 +42,8 @@ suite "Settings Frame":
         check(frame.enable_push.get() == false)
 
     test "Protocol error when does not target the connection control stream":
-        let header = Header(frame_type: FrameType.Settings, length: 6'u32, stream_id: 1'u8)
-        var stream = newStringStream("\x00")
+        let header = Header(frame_type: FrameType.Settings, length: 0'u32, stream_id: 1'u8)
+        var stream = newStringStream("")
         let result = SettingsFrame.read(header, stream)
         check(result.unwrap_error() == ErrorCode.Protocol)
 
