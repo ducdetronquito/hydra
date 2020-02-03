@@ -1,9 +1,5 @@
 import base
-import bitops
-import error_codes
 import options
-import result
-import streams
 
 
 type
@@ -84,3 +80,6 @@ const SETTINGS_ACK = 1'u8
 
 proc is_ack*(self: SettingsFrame): bool =
     return self.header.flags.bitand(SETTINGS_ACK) == SETTINGS_ACK
+
+
+export options

@@ -1,9 +1,5 @@
 import base
-import bitops
-import error_codes
 import options
-import result
-import streams
 
 
 type
@@ -75,3 +71,6 @@ proc is_end_stream*(self: HeadersFrame): bool =
 
 proc is_end_headers*(self: HeadersFrame): bool =
     return self.header.flags.bitand(END_HEADERS) == END_HEADERS
+
+
+export options

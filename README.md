@@ -10,7 +10,6 @@ Nota Bene: *Hydra is in its early stage, so every of its aspects is subject to c
 
 ```nim
     import hydra
-    import streams
 
     var stream = newStringStream("......")
 
