@@ -1,5 +1,4 @@
 import hydra
-import streams
 import strutils
 import unittest
 
@@ -19,6 +18,7 @@ suite "Data Frame":
         let header = Header(frame_type: FrameType.Data, length: 10'u32, stream_id: 1'u32, flags: 8'u8)
         let result = DataFrame.read(header, stream)
         check(result.unwrap().data == @[1'u8, 1'u8, 1'u8, 1'u8, 1'u8])
+        check(stream.atEnd())
 
     test "Protocol error when the payload is only padding without data":
         let input = '\x09' & '\x00'.repeat(9)

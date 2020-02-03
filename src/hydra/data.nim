@@ -1,8 +1,4 @@
 import base
-import bitops
-import error_codes
-import result
-import streams
 
 
 const DATA_END_STREAM = 1'u8
@@ -34,19 +30,12 @@ proc read*(cls: type[DataFrame], header: Header, stream: StringStream): Result[D
 
     var frame = DataFrame(header: header)
 
-    let payload_length = cast[int](header.length)
-    var pad_length = 0
-    if frame.is_padded():
-        pad_length = cast[int](stream.readUint8()) + 1
-        if pad_length >= payload_length:
-            return Err(ErrorCode.Protocol)
+    let padding = if frame.is_padded(): cast[int](stream.readUint8()) else: 0
+    let data = stream.read_padded_data(cast[int](header.length), padding)
+    if data.is_err():
+        return Err(data.unwrap_error())
 
-    let data_length = payload_length - pad_length
-    var data = newSeq[byte](data_length)
-    discard stream.readData(addr(data[0]), data_length)
-    frame.data = data
-
-    stream.setPosition(stream.getPosition() + pad_length)
+    frame.data = data.unwrap()
 
     return Ok(frame)
 

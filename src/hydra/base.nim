@@ -1,4 +1,6 @@
 import bitops
+import error_codes
+import result
 import streams
 
 const CONNECTION_CONTROL_STREAM_ID = 0'u8
@@ -58,9 +60,20 @@ template targets_connection_control_stream*(self: Header): bool =
 
 
 type
+    StreamId* = uint32
+
+
+proc create*(cls: type[StreamId], value: uint32): StreamId =
+    return StreamId(value.bitand(0x7FFFFFFF))
+
+proc read*(cls: type[StreamId], stream: StringStream): StreamId =
+    return StreamId.create(stream.readUint32())
+
+
+type
     Priority* = object
         exclusive*: bool
-        stream_dependency*: uint32
+        stream_dependency*: StreamId
         weight*: uint8
 
 
@@ -71,7 +84,26 @@ proc has_highest_order_bit_activated(value: uint32): bool =
 proc read*(cls: type[Priority], buffer: StringStream): Priority =
     let tmp = buffer.readUint32()
     return Priority(
-        stream_dependency: tmp.bitand(0x7FFFFFFF),
+        stream_dependency: StreamId.create(tmp),
         exclusive: tmp.has_highest_order_bit_activated(),
         weight: buffer.readUint8()
     )
+
+
+proc read_padded_data*(stream: StringStream, length: int, padding: int = 0): Result[seq[byte], ErrorCode] =
+    var payload_length = cast[int](length)
+    if padding != 0:
+        payload_length = payload_length - 1 - padding
+
+    if padding >= payload_length:
+        return Err(ErrorCode.Protocol)
+
+    var data = newSeq[byte](payload_length)
+    discard stream.readData(addr(data[0]), payload_length)
+    if padding != 0:
+        stream.setPosition(stream.getPosition() + padding)
+
+    return Ok(data)
+
+
+export bitops, error_codes, result, streams

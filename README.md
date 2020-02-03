@@ -30,6 +30,8 @@ Nota Bene: *Hydra is in its early stage, so every of its aspects is subject to c
             let frame = RstStreamFrame.read(header, stream).unwrap()
         of FrameType.Settings:
             let frame = SettingsFrame.read(header, stream).unwrap()
+        of FrameType.PushPromise:
+            let frame = PushPromise.read(header, stream).unwrap()
         of FrameType.Ping:
             let frame = PingFrame.read(header, stream).unwrap()
         else:
