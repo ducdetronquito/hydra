@@ -38,12 +38,18 @@ proc read*(cls: type[PushPromiseFrame], header: Header, stream: StringStream): R
 
     var frame = PushPromiseFrame(header: header)
 
-    let padding = if frame.is_padded(): cast[int](stream.readUint8()) else: 0
+    var length = cast[int](header.length)
+    var padding = 0
+    if frame.is_padded():
+        padding = cast[int](stream.readUint8())
+        length -= 1
+        if padding >= length:
+            return Err(ErrorCode.Protocol)
 
     frame.promised_stream_id = StreamId.read(stream)
-    let length = cast[int](header.length) - 4
+    length -= 4
 
-    let data = stream.read_padded_data(length, padding)
+    let data = stream.read_bytes(length, padding)
     if data.is_err():
         return Err(data.unwrap_error())
 

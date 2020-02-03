@@ -34,7 +34,7 @@ proc read*(cls: type[GoAwayFrame], header: Header, stream: StringStream): Result
     if payload_length == 0:
         return Ok(frame)
 
-    let data = stream.read_padded_data(payload_length)
+    let data = stream.read_bytes(payload_length)
     if data.is_err():
         return Err(data.unwrap_error())
 

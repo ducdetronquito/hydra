@@ -91,13 +91,8 @@ proc read*(cls: type[Priority], buffer: StringStream): Priority =
     )
 
 
-proc read_padded_data*(stream: StringStream, length: int, padding: int = 0): Result[seq[byte], ErrorCode] =
-    var payload_length = cast[int](length)
-    if padding != 0:
-        payload_length = payload_length - 1 - padding
-
-    if padding >= payload_length:
-        return Err(ErrorCode.Protocol)
+proc read_bytes*(stream: StringStream, length: int, padding: int = 0): Result[seq[byte], ErrorCode] =
+    var payload_length = length - padding
 
     var data = newSeq[byte](payload_length)
     discard stream.readData(addr(data[0]), payload_length)

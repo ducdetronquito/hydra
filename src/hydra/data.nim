@@ -30,8 +30,15 @@ proc read*(cls: type[DataFrame], header: Header, stream: StringStream): Result[D
 
     var frame = DataFrame(header: header)
 
-    let padding = if frame.is_padded(): cast[int](stream.readUint8()) else: 0
-    let data = stream.read_padded_data(cast[int](header.length), padding)
+    var length = cast[int](header.length)
+    var padding = 0
+    if frame.is_padded():
+        padding = cast[int](stream.readUint8())
+        length -= 1
+        if padding >= length:
+            return Err(ErrorCode.Protocol)
+
+    let data = stream.read_bytes(length, padding)
     if data.is_err():
         return Err(data.unwrap_error())
 
