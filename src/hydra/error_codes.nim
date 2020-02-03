@@ -1,3 +1,5 @@
+import streams
+
 type
     ErrorCode* {.pure.} = enum
         # Cf: https://tools.ietf.org/html/rfc7540#section-7
@@ -17,7 +19,8 @@ type
         Http11Required = 13'u32
 
 
-proc create*(cls: type[ErrorCode], value: uint32): ErrorCode =
+proc read*(cls: type[ErrorCode], stream: StringStream): ErrorCode =
+    let value = stream.readUint32()
     if value > cast[uint32](ErrorCode.Http11Required):
         return ErrorCode.No
     else:

@@ -22,5 +22,5 @@ proc read*(cls: type[RstStreamFrame], header: Header, stream: StringStream): Res
     if header.length != 4'u32:
         return Err(ErrorCode.FrameSize)
 
-    let error_code = ErrorCode.create(stream.readUint32())
+    let error_code = ErrorCode.read(stream)
     return Ok(RstStreamFrame(header: header, error_code: error_code))

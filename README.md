@@ -33,6 +33,8 @@ Nota Bene: *Hydra is in its early stage, so every of its aspects is subject to c
             let frame = PushPromise.read(header, stream).unwrap()
         of FrameType.Ping:
             let frame = PingFrame.read(header, stream).unwrap()
+        of FrameType.GoAway:
+            let frame = GoAwayFrame.read(header, stream).unwrap()
         else:
             discard
 ```

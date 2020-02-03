@@ -1,6 +1,7 @@
 import hydra/[
     base,
     data,
+    go_away,
     headers,
     ping,
     priority,
@@ -12,6 +13,7 @@ import hydra/[
 export
     base,
     data,
+    go_away,
     headers,
     ping,
     priority,

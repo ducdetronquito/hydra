@@ -66,6 +66,7 @@ type
 proc create*(cls: type[StreamId], value: uint32): StreamId =
     return StreamId(value.bitand(0x7FFFFFFF))
 
+
 proc read*(cls: type[StreamId], stream: StringStream): StreamId =
     return StreamId.create(stream.readUint32())
 
