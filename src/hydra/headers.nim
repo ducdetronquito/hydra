@@ -29,24 +29,23 @@ proc read*(cls: type[HeadersFrame], header: Header, stream: StringStream): Resul
 
     var frame = HeadersFrame(header: header)
 
-    var priority_length = 0
+    var length = cast[int](header.length)
     if frame.has_priority():
         frame.priority = some(Priority.read(stream))
-        priority_length = 5
+        length -= 5
 
-    let payload_length = cast[int](header.length)
-    var pad_length = 0
+    var padding = 0
     if frame.is_padded():
-        pad_length = cast[int](stream.readUint8()) + 1
-        if pad_length >= payload_length:
+        padding = cast[int](stream.readUint8())
+        length -= 1
+        if padding >= length:
             return Err(ErrorCode.Protocol)
 
-    let data_length = payload_length - pad_length - priority_length
-    var data = newSeq[byte](data_length)
-    discard stream.readData(addr(data[0]), data_length)
-    frame.header_block_fragment = data
+    let data = stream.read_bytes(length, padding)
+    if data.is_err():
+        return Err(data.unwrap_error())
 
-    stream.setPosition(stream.getPosition() + pad_length)
+    frame.header_block_fragment = data.unwrap()
 
     return Ok(frame)
 
