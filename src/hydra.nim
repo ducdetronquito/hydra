@@ -7,7 +7,8 @@ import hydra/[
     priority,
     push_promise,
     rst_stream,
-    settings
+    settings,
+    window_update
 ]
 
 export
@@ -19,4 +20,5 @@ export
     priority,
     push_promise,
     rst_stream,
-    settings
+    settings,
+    window_update
