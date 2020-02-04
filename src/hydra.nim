@@ -1,5 +1,6 @@
 import hydra/[
     base,
+    continuation,
     data,
     go_away,
     headers,
@@ -13,6 +14,7 @@ import hydra/[
 
 export
     base,
+    continuation,
     data,
     go_away,
     headers,

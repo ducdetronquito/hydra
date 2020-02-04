@@ -36,6 +36,8 @@ Nota Bene: *Hydra is in its early stage, so every of its aspects is subject to c
         let frame = GoAwayFrame.read(header, stream).unwrap()
     of FrameType.WindowUpdate:
         let frame = WindowUpdateFrame.read(header, stream).unwrap()
+    of FrameType.Continuation:
+        let frame = ContinuationFrame.read(header, stream).unwrap()
     else:
         discard
 ```
