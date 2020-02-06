@@ -127,6 +127,16 @@ proc read*(cls: type[Priority], buffer: StringStream): Priority =
     )
 
 
+proc serialize*(self: Priority): array[5, byte] =
+    let stream_dependency = self.stream_dependency.bitor(0x80000000'u32)
+    result[0] = cast[uint8](stream_dependency shr 24)
+    result[1] = cast[uint8](stream_dependency shr 16)
+    result[2] = cast[uint8](stream_dependency shr 8)
+    result[3] = cast[uint8](stream_dependency)
+    result[4] = self.weight
+    return result
+
+
 proc read_bytes*(self: StringStream, length: int, padding: int = 0): Result[seq[byte], ErrorCode] =
     var payload_length = length - padding
 

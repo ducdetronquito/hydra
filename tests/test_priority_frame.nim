@@ -24,3 +24,12 @@ suite "Priority Frame":
         var stream = newStringStream("")
         let result = PriorityFrame.read(header, stream)
         check(result.unwrap_error() == ErrorCode.FrameSize)
+
+    test "Serialize":
+        let header = Header(frame_type: FrameType.Priority, length: 5'u32, stream_id: 1'u32)
+        let priority = Priority(weight: 42'u8, exclusive: true, stream_dependency: 7'u8)
+        let frame = PriorityFrame(header: header, priority: priority)
+        check(frame.serialize() == [
+            0'u8, 0'u8, 5'u8, 2'u8, 0'u8, 0'u8, 0'u8, 0'u8, 1'u8,
+            128'u8, 0'u8, 0'u8, 7'u8, 42'u8
+        ])

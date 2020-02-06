@@ -24,3 +24,10 @@ proc read*(cls: type[PriorityFrame], header: Header, stream: StringStream): Resu
 
     let frame = PriorityFrame(header: header, priority: Priority.read(stream))
     return Ok(frame)
+
+
+proc serialize*(self: PriorityFrame): seq[byte] =
+    result = self.header.serialize()
+    let priority = self.priority.serialize()
+    result.add(priority)
+    return result
