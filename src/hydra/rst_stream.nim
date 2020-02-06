@@ -24,3 +24,14 @@ proc read*(cls: type[RstStreamFrame], header: Header, stream: StringStream): Res
 
     let error_code = ErrorCode.read(stream)
     return Ok(RstStreamFrame(header: header, error_code: error_code))
+
+
+proc serialize*(self: RstStreamFrame): seq[byte] =
+    result = self.header.serialize()
+    let error_code = cast[uint32](self.error_code)
+    result.add(cast[uint8](error_code shr 24'u32))
+    result.add(cast[uint8](error_code shr 16'u32))
+    result.add(cast[uint8](error_code shr 8))
+    result.add(cast[uint8](error_code))
+
+    return result

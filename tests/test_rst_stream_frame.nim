@@ -28,3 +28,17 @@ suite "RstStream Frame":
         var stream = newStringStream("")
         let result = RstStreamFrame.read(header, stream)
         check(result.unwrap_error() == ErrorCode.FrameSize)
+
+    test "Serialize":
+        let header = Header(
+            length: 4'u32,
+            frame_type: FrameType.RstStream,
+            flags: 0'u8,
+            stream_id: StreamId(1'u32)
+        )
+
+        let frame = RstStreamFrame(header: header, error_code: ErrorCode.EnhanceYourCalm)
+        check(frame.serialize() == [
+            0'u8, 0'u8, 4'u8, 3'u8, 0'u8, 0'u8, 0'u8, 0'u8, 1'u8,
+            0'u8, 0'u8, 0'u8, 11'u8,
+        ])
