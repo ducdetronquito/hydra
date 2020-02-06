@@ -28,7 +28,7 @@ suite "Headers Frame":
         let priority = frame.priority.get()
         check(priority.weight == 42'u8)
         check(priority.exclusive == true)
-        check(priority.stream_dependency == 7'u32)
+        check(priority.stream_dependency == StreamId(7))
         check(frame.header_block_fragment == @[1'u8, 1'u8, 1'u8, 1'u8, 1'u8])
 
     test "Protocol error when the payload is only padding without data":

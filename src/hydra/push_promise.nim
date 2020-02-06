@@ -1,3 +1,4 @@
+import bytes
 import error_codes
 import flags
 import frame_header
@@ -58,3 +59,19 @@ proc read*(cls: type[PushPromiseFrame], header: Header, stream: StringStream): R
     frame.header_block_fragment = data.unwrap()
 
     return Ok(frame)
+
+
+proc serialize*(self: PushPromiseFrame): seq[byte] =
+    result = self.header.serialize()
+
+    let pad_length = int(self.header.length) - self.header_block_fragment.len()
+    if pad_length != 0:
+        result.add(byte(pad_length))
+
+    result.add(self.promised_stream_id.serialize())
+
+    result.add(self.header_block_fragment)
+
+    result.pad(pad_length)
+
+    return result

@@ -22,7 +22,7 @@ type
 
 proc read*(cls: type[ErrorCode], stream: StringStream): ErrorCode =
     let value = stream.readUint32()
-    if value > cast[uint32](ErrorCode.Http11Required):
+    if value > uint32(ErrorCode.Http11Required):
         return ErrorCode.No
     else:
         return ErrorCode(value)

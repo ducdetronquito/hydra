@@ -11,7 +11,7 @@ suite "Priority Frame":
         let frame = PriorityFrame.read(header, stream).unwrap()
         check(frame.priority.weight == 42'u8)
         check(frame.priority.exclusive == true)
-        check(frame.priority.stream_dependency == 7'u32)
+        check(frame.priority.stream_dependency == StreamId(7))
 
     test "Protocol error when targets the connection control stream":
         let header = Header(frame_type: FrameType.Priority, length: 4'u32, stream_id: StreamId(0))
@@ -27,7 +27,7 @@ suite "Priority Frame":
 
     test "Serialize":
         let header = Header(frame_type: FrameType.Priority, length: 5'u32, stream_id: StreamId(1))
-        let priority = Priority(weight: 42'u8, exclusive: true, stream_dependency: 7'u8)
+        let priority = Priority(weight: 42'u8, exclusive: true, stream_dependency: StreamId(7))
         let frame = PriorityFrame(header: header, priority: priority)
         check(frame.serialize() == [
             0'u8, 0'u8, 5'u8, 2'u8, 0'u8, 0'u8, 0'u8, 0'u8, 1'u8,

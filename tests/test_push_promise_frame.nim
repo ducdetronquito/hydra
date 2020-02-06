@@ -51,3 +51,43 @@ suite "Push Promise Frame":
         let frame = PushPromiseFrame(header: header)
         check(frame.ends_headers())
         check(frame.is_padded())
+
+    test "Serialize":
+        let header = Header(
+            length: 5'u32,
+            frame_type: FrameType.PushPromise,
+            flags: NO_FLAG,
+            stream_id: StreamId(1)
+        )
+
+        let frame = PushPromiseFrame(
+            header: header,
+            promised_stream_id: StreamId(7),
+            header_block_fragment: @[0'u8, 1'u8, 2'u8, 3'u8, 4'u8]
+        )
+        check(frame.serialize() == [
+            0'u8, 0'u8, 5'u8, 5'u8, 0'u8, 0'u8, 0'u8, 0'u8, 1'u8,
+            0'u8, 0'u8, 0'u8, 7'u8,
+            0'u8, 1'u8, 2'u8, 3'u8, 4'u8
+        ])
+
+    test "Serialize padded data":
+        let header = Header(
+            length: 10'u32,
+            frame_type: FrameType.PushPromise,
+            flags: PADDED_FLAG,
+            stream_id: StreamId(1)
+        )
+
+        let frame = PushPromiseFrame(
+            header: header,
+            promised_stream_id: StreamId(7),
+            header_block_fragment: @[0'u8, 1'u8, 2'u8, 3'u8, 4'u8]
+        )
+        check(frame.serialize() == [
+            0'u8, 0'u8, 10'u8, 5'u8, 8'u8, 0'u8, 0'u8, 0'u8, 1'u8,
+            5'u8,
+            0'u8, 0'u8, 0'u8, 7'u8,
+            0'u8, 1'u8, 2'u8, 3'u8, 4'u8,
+            0'u8, 0'u8, 0'u8, 0'u8, 0'u8,
+        ])

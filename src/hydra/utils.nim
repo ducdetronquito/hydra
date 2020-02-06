@@ -26,11 +26,14 @@ proc read*(cls: type[Priority], buffer: StringStream): Priority =
 
 
 proc serialize*(self: Priority): array[5, byte] =
-    let stream_dependency = self.stream_dependency.bitor(0x80000000'u32).serialize()
-    result[0] = stream_dependency[0]
-    result[1] = stream_dependency[1]
-    result[2] = stream_dependency[2]
-    result[3] = stream_dependency[3]
+    var stream_dependency = uint32(self.stream_dependency)
+    if self.exclusive:
+        stream_dependency = stream_dependency + 0x80000000'u32
+    let pack = stream_dependency.serialize()
+    result[0] = pack[0]
+    result[1] = pack[1]
+    result[2] = pack[2]
+    result[3] = pack[3]
     result[4] = self.weight
     return result
 
