@@ -52,3 +52,18 @@ proc is_end_stream*(self: DataFrame): bool =
 
 proc is_padded*(self: DataFrame): bool =
     return self.header.flags.bitand(DATA_PADDED) == DATA_PADDED
+
+
+proc serialize*(self: DataFrame): seq[byte] =
+    result = self.header.serialize()
+
+    let pad_length = cast[int](self.header.length) - self.data.len()
+    if pad_length != 0:
+        result.add(cast[uint8](pad_length))
+
+    result.add(self.data)
+
+    if pad_length != 0:
+        result.pad(pad_length)
+
+    return result

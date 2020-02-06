@@ -58,3 +58,33 @@ suite "Data Frame":
         let frame = DataFrame(header: header)
         check(frame.is_end_stream())
         check(frame.is_padded())
+
+    test "serialize":
+        let header = Header(
+            length: 5'u32,
+            frame_type: FrameType.Data,
+            flags: 0'u8,
+            stream_id: StreamId(1'u32)
+        )
+
+        let frame = DataFrame(header: header, data: @[0'u8, 1'u8, 2'u8, 3'u8, 4'u8])
+        check(frame.serialize() == [
+            0'u8, 0'u8, 5'u8, 0'u8, 0'u8, 0'u8, 0'u8, 0'u8, 1'u8,
+            0'u8, 1'u8, 2'u8, 3'u8, 4'u8
+        ])
+
+    test "serialize padded data":
+        let header = Header(
+            length: 10'u32,
+            frame_type: FrameType.Data,
+            flags: 8'u8,
+            stream_id: StreamId(1'u32)
+        )
+
+        let frame = DataFrame(header: header, data: @[0'u8, 1'u8, 2'u8, 3'u8, 4'u8])
+        check(frame.serialize() == [
+            0'u8, 0'u8, 10'u8, 0'u8, 8'u8, 0'u8, 0'u8, 0'u8, 1'u8,
+            5'u8,
+            0'u8, 1'u8, 2'u8, 3'u8, 4'u8,
+            0'u8, 0'u8, 0'u8, 0'u8, 0'u8,
+        ])

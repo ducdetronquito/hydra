@@ -138,4 +138,9 @@ proc read_bytes*(self: StringStream, length: int, padding: int = 0): Result[seq[
     return Ok(data)
 
 
+proc pad*(self: var seq[byte], padding: int) =
+    for i in 0..<padding:
+        self.add(0'u8)
+
+
 export bitops, error_codes, result, streams
