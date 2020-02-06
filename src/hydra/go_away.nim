@@ -1,4 +1,9 @@
-import base
+import error_codes
+import frame_header
+import result
+import stream
+import streams
+import utils
 
 
 type
@@ -30,7 +35,7 @@ proc read*(cls: type[GoAwayFrame], header: Header, stream: StringStream): Result
     frame.last_stream_id = StreamId.read(stream)
     frame.error_code = ErrorCode.read(stream)
 
-    let payload_length = cast[int](header.length) - 8
+    let payload_length = int(header.length) - 8
     if payload_length == 0:
         return Ok(frame)
 

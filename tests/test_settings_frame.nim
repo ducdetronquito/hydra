@@ -1,4 +1,5 @@
 import hydra
+import streams
 import unittest
 
 
@@ -13,7 +14,7 @@ suite "Settings Frame":
         input.add("\x06\x00\x07\x00\x00\x00")
 
         var stream = newStringStream(input)
-        let header = Header(frame_type: FrameType.Settings, length: 36'u32, stream_id: 0'u32)
+        let header = Header(frame_type: FrameType.Settings, length: 36'u32, stream_id: StreamId(0))
         let frame = SettingsFrame.read(header, stream).unwrap()
         check(frame.header_table_size.get() == 255'u32)
         check(frame.enable_push.get() == true)
@@ -24,7 +25,7 @@ suite "Settings Frame":
 
     test "Read no settings":
         var stream = newStringStream("")
-        let header = Header(frame_type: FrameType.Settings, length: 0'u32, stream_id: 0'u32)
+        let header = Header(frame_type: FrameType.Settings, length: 0'u32, stream_id: StreamId(0))
         let frame = SettingsFrame.read(header, stream).unwrap()
         check(frame.header_table_size.isNone)
         check(frame.enable_push.isNone)
@@ -37,34 +38,34 @@ suite "Settings Frame":
         var input = "\x02\x00\x01\x00\x00\x00"
         input.add("\x02\x00\x00\x00\x00\x00")
         var stream = newStringStream(input)
-        let header = Header(frame_type: FrameType.Settings, length: 12'u32, stream_id: 0'u32)
+        let header = Header(frame_type: FrameType.Settings, length: 12'u32, stream_id: StreamId(0))
         let frame = SettingsFrame.read(header, stream).unwrap()
         check(frame.enable_push.get() == false)
 
     test "Protocol error when does not target the connection control stream":
-        let header = Header(frame_type: FrameType.Settings, length: 0'u32, stream_id: 1'u8)
+        let header = Header(frame_type: FrameType.Settings, length: 0'u32, stream_id: StreamId(1))
         var stream = newStringStream("")
         let result = SettingsFrame.read(header, stream)
         check(result.unwrap_error() == ErrorCode.Protocol)
 
     test "Frame size error when length is not a multiple of 6 bytes":
-        let header = Header(frame_type: FrameType.Settings, length: 7'u32, stream_id: 0'u8)
+        let header = Header(frame_type: FrameType.Settings, length: 7'u32, stream_id: StreamId(0))
         var stream = newStringStream("\x00")
         let result = SettingsFrame.read(header, stream)
         check(result.unwrap_error() == ErrorCode.FrameSize)
 
     test "Frame size error when frame is ACK but has payload":
-        let header = Header(frame_type: FrameType.Settings, length: 6'u32, stream_id: 0'u8, flags: 1'u8)
+        let header = Header(frame_type: FrameType.Settings, length: 6'u32, stream_id: StreamId(0), flags: ACK_FLAG)
         var stream = newStringStream("\x02\x00\x01\x00\x00\x00")
         let result = SettingsFrame.read(header, stream)
         check(result.unwrap_error() == ErrorCode.FrameSize)
 
     test "Has flag ACK":
-        let header = Header(frame_type: FrameType.Settings, flags: 1'u8)
+        let header = Header(frame_type: FrameType.Settings, flags: ACK_FLAG)
         let frame = SettingsFrame(header: header)
         check(frame.is_ack())
 
     test "Does not have ACK flag":
-        let header = Header(frame_type: FrameType.Settings, flags: 254'u8)
+        let header = Header(frame_type: FrameType.Settings, flags: NO_FLAG)
         let frame = SettingsFrame(header: header)
         check(frame.is_ack() == false)

@@ -1,4 +1,8 @@
-import base
+import bytes
+import error_codes
+import frame_header
+import result
+import streams
 
 
 type
@@ -27,10 +31,5 @@ proc read*(cls: type[WindowUpdateFrame], header: Header, stream: StringStream): 
 
 proc serialize*(self: WindowUpdateFrame): seq[byte] =
     result = self.header.serialize()
-    let window_size_increment = cast[uint32](self.window_size_increment)
-    result.add(cast[uint8](window_size_increment shr 24'u32))
-    result.add(cast[uint8](window_size_increment shr 16'u32))
-    result.add(cast[uint8](window_size_increment shr 8))
-    result.add(cast[uint8](window_size_increment))
-
+    result.add(self.window_size_increment.serialize())
     return result

@@ -1,5 +1,9 @@
-import base
+import error_codes
+import flags
+import frame_header
 import options
+import result
+import streams
 
 
 type
@@ -14,7 +18,7 @@ type
 
 
 proc create*(cls: type[Settings], value: uint32): Settings =
-    if value < cast[uint32](Settings.Unknown):
+    if value < uint32(Settings.Unknown):
         return Settings(value)
     else:
         return Settings.Unknown
@@ -34,6 +38,10 @@ type
         initial_window_size*: Option[uint32]
         max_frame_size*: Option[uint32]
         max_header_list_size*: Option[uint32]
+
+
+template is_ack*(self: SettingsFrame): bool =
+    self.header.flags.contains(ACK_FLAG)
 
 
 proc read*(cls: type[SettingsFrame], header: Header, stream: StringStream): Result[SettingsFrame, ErrorCode] =
@@ -72,12 +80,6 @@ proc read*(cls: type[SettingsFrame], header: Header, stream: StringStream): Resu
         remaining_bytes -= 6'u32
 
     return Ok(frame)
-
-
-const SETTINGS_ACK = 1'u8
-
-proc is_ack*(self: SettingsFrame): bool =
-    return self.header.flags.bitand(SETTINGS_ACK) == SETTINGS_ACK
 
 
 export options

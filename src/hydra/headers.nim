@@ -1,5 +1,11 @@
-import base
+import bytes
+import error_codes
+import flags
+import frame_header
 import options
+import result
+import streams
+import utils
 
 
 type
@@ -23,20 +29,36 @@ type
         priority*: Option[Priority]
 
 
+template is_padded*(self: HeadersFrame): bool =
+    self.header.flags.contains(PADDED_FLAG)
+
+
+template has_priority*(self: HeadersFrame): bool =
+    self.header.flags.contains(PRIORITY_FLAG)
+
+
+template ends_stream*(self: HeadersFrame): bool =
+    self.header.flags.contains(END_STREAM_FLAG)
+
+
+template ends_headers*(self: HeadersFrame): bool =
+    self.header.flags.contains(END_HEADERS_FLAG)
+
+
 proc read*(cls: type[HeadersFrame], header: Header, stream: StringStream): Result[HeadersFrame, ErrorCode] =
     if header.targets_connection_control_stream():
         return Err(ErrorCode.Protocol)
 
     var frame = HeadersFrame(header: header)
 
-    var length = cast[int](header.length)
+    var length = int(header.length)
     if frame.has_priority():
         frame.priority = some(Priority.read(stream))
         length -= 5
 
     var padding = 0
     if frame.is_padded():
-        padding = cast[int](stream.readUint8())
+        padding = int(stream.readUint8())
         length -= 1
         if padding >= length:
             return Err(ErrorCode.Protocol)
@@ -50,44 +72,20 @@ proc read*(cls: type[HeadersFrame], header: Header, stream: StringStream): Resul
     return Ok(frame)
 
 
-const END_STREAM = 1'u8
-const END_HEADERS = 4'u8
-const PADDED = 8'u8
-const PRIORITY = 32'u8
-
-
-proc is_padded*(self: HeadersFrame): bool =
-    return self.header.flags.bitand(PADDED) == PADDED
-
-
-proc has_priority*(self: HeadersFrame): bool =
-    return self.header.flags.bitand(PRIORITY) == PRIORITY
-
-
-proc is_end_stream*(self: HeadersFrame): bool =
-    return self.header.flags.bitand(END_STREAM) == END_STREAM
-
-
-proc is_end_headers*(self: HeadersFrame): bool =
-    return self.header.flags.bitand(END_HEADERS) == END_HEADERS
-
-
 proc serialize*(self: HeadersFrame): seq[byte] =
     result = self.header.serialize()
 
     let priority_length = if self.has_priority(): 5 else: 0
-    let pad_length = cast[int](self.header.length) - self.header_block_fragment.len() - priority_length
+    let pad_length = int(self.header.length) - self.header_block_fragment.len() - priority_length
 
     if pad_length != 0:
-        result.add(cast[uint8](pad_length))
+        result.add(byte(pad_length))
 
     if priority_length != 0:
         result.add(self.priority.get().serialize())
 
     result.add(self.header_block_fragment)
-
-    if pad_length != 0:
-        result.pad(pad_length)
+    result.pad(pad_length)
 
     return result
 

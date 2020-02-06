@@ -1,4 +1,5 @@
 import hydra
+import streams
 import unittest
 
 
@@ -10,7 +11,7 @@ suite "Frame Header":
         check(header.length == 3)
         check(header.frame_type == FrameType.Ping)
         check(header.flags == 1)
-        check(header.stream_id == 42)
+        check(header.stream_id == StreamId(42))
 
     test "Frame size error when the header does not have 9 bytes":
         var stream = newStringStream("\x00")
@@ -51,7 +52,7 @@ suite "Frame Header":
         let header = Header(
             length: 16777215'u32,
             frame_type: FrameType.Data,
-            flags: 8'u8,
+            flags: PADDED_FLAG,
             stream_id: StreamId(2147483647'u32)
         )
 

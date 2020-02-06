@@ -1,8 +1,11 @@
-import base
+import bytes
+import error_codes
+import flags
+import frame_header
+import result
+import streams
+import utils
 
-
-const DATA_END_STREAM = 1'u8
-const DATA_PADDED = 8'u8
 
 type
     DataFrame* = object
@@ -24,16 +27,24 @@ type
         data*: seq[byte]
 
 
+template ends_stream*(self: DataFrame): bool =
+    self.header.flags.contains(END_STREAM_FLAG)
+
+
+template is_padded*(self: DataFrame): bool =
+    self.header.flags.contains(PADDED_FLAG)
+
+
 proc read*(cls: type[DataFrame], header: Header, stream: StringStream): Result[DataFrame, ErrorCode] =
     if header.targets_connection_control_stream():
         return Err(ErrorCode.Protocol)
 
     var frame = DataFrame(header: header)
 
-    var length = cast[int](header.length)
+    var length = int(header.length)
     var padding = 0
     if frame.is_padded():
-        padding = cast[int](stream.readUint8())
+        padding = int(stream.readUint8())
         length -= 1
         if padding >= length:
             return Err(ErrorCode.Protocol)
@@ -47,23 +58,15 @@ proc read*(cls: type[DataFrame], header: Header, stream: StringStream): Result[D
     return Ok(frame)
 
 
-proc is_end_stream*(self: DataFrame): bool =
-    return self.header.flags.bitand(DATA_END_STREAM) == DATA_END_STREAM
-
-proc is_padded*(self: DataFrame): bool =
-    return self.header.flags.bitand(DATA_PADDED) == DATA_PADDED
-
-
 proc serialize*(self: DataFrame): seq[byte] =
     result = self.header.serialize()
 
-    let pad_length = cast[int](self.header.length) - self.data.len()
+    let pad_length = int(self.header.length) - self.data.len()
     if pad_length != 0:
-        result.add(cast[uint8](pad_length))
+        result.add(byte(pad_length))
 
     result.add(self.data)
 
-    if pad_length != 0:
-        result.pad(pad_length)
+    result.pad(pad_length)
 
     return result

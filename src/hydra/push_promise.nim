@@ -1,4 +1,10 @@
-import base
+import error_codes
+import flags
+import frame_header
+import result
+import stream
+import streams
+import utils
 
 
 type
@@ -20,16 +26,12 @@ type
         header_block_fragment*: seq[byte]
 
 
-const END_HEADERS = 4'u8
-const PADDED = 8'u8
+template is_padded*(self: PushPromiseFrame): bool =
+    self.header.flags.contains(PADDED_FLAG)
 
 
-proc is_padded*(self: PushPromiseFrame): bool =
-    return self.header.flags.bitand(PADDED) == PADDED
-
-
-proc is_end_headers*(self: PushPromiseFrame): bool =
-    return self.header.flags.bitand(END_HEADERS) == END_HEADERS
+template ends_headers*(self: PushPromiseFrame): bool =
+    self.header.flags.contains(END_HEADERS_FLAG)
 
 
 proc read*(cls: type[PushPromiseFrame], header: Header, stream: StringStream): Result[PushPromiseFrame, ErrorCode] =
@@ -38,10 +40,10 @@ proc read*(cls: type[PushPromiseFrame], header: Header, stream: StringStream): R
 
     var frame = PushPromiseFrame(header: header)
 
-    var length = cast[int](header.length)
+    var length = int(header.length)
     var padding = 0
     if frame.is_padded():
-        padding = cast[int](stream.readUint8())
+        padding = int(stream.readUint8())
         length -= 1
         if padding >= length:
             return Err(ErrorCode.Protocol)

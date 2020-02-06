@@ -1,4 +1,8 @@
-import base
+import error_codes
+import frame_header
+import result
+import streams
+import utils
 
 
 type
@@ -28,6 +32,5 @@ proc read*(cls: type[PriorityFrame], header: Header, stream: StringStream): Resu
 
 proc serialize*(self: PriorityFrame): seq[byte] =
     result = self.header.serialize()
-    let priority = self.priority.serialize()
-    result.add(priority)
+    result.add(self.priority.serialize())
     return result

@@ -1,3 +1,4 @@
+import bytes
 import streams
 
 type
@@ -25,3 +26,7 @@ proc read*(cls: type[ErrorCode], stream: StringStream): ErrorCode =
         return ErrorCode.No
     else:
         return ErrorCode(value)
+
+
+proc serialize*(self: ErrorCode): array[4, byte] =
+    return serialize(uint32(self))

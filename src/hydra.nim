@@ -1,26 +1,36 @@
 import hydra/[
-    base,
     continuation,
     data,
+    error_codes,
+    flags,
+    frame_header,
     go_away,
     headers,
     ping,
     priority,
     push_promise,
+    result,
     rst_stream,
     settings,
+    stream,
+    utils,
     window_update
 ]
 
 export
-    base,
     continuation,
     data,
+    error_codes,
+    flags,
+    frame_header,
     go_away,
     headers,
     ping,
     priority,
     push_promise,
+    result,
     rst_stream,
     settings,
+    stream,
+    utils,
     window_update
