@@ -31,3 +31,17 @@ suite "Ping Frame":
         let header = Header(frame_type: FrameType.Ping, flags: 254'u8)
         let frame = PingFrame(header: header)
         check(frame.is_ack() == false)
+
+    test "Serialize":
+        let header = Header(
+            length: 8'u32,
+            frame_type: FrameType.Ping,
+            flags: 8'u8,
+            stream_id: StreamId(0'u32)
+        )
+        let frame = PingFrame(header: header, opaque_data: 42'U64)
+
+        check(frame.serialize() == @[
+            0'u8, 0'u8, 8'u8, 6'u8, 8'u8, 0'u8, 0'u8, 0'u8, 0'u8,
+            0'u8, 0'u8, 0'u8, 0'u8, 0'u8, 0'u8, 0'u8, 42'u8,
+        ])

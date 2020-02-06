@@ -46,3 +46,13 @@ suite "Frame Header":
         var stream = newStringStream("\x03\x00\x00\x09\x01\x2a\x00\x00\x00\x01")
         var header = Header.read(stream)
         check(header.unwrap_error() == ErrorCode.Protocol)
+
+    test "Serialize":
+        let header = Header(
+            length: 16777215'u32,
+            frame_type: FrameType.Data,
+            flags: 8'u8,
+            stream_id: StreamId(2147483647'u32)
+        )
+
+        check(header.serialize() == @[255'u8, 255'u8, 255'u8, 0'u8, 8'u8, 127'u8, 255'u8, 255'u8, 255'u8])

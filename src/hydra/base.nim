@@ -94,6 +94,19 @@ proc read*(cls: type[Header], stream: StringStream): Result[Header, ErrorCode] =
         return Err(ErrorCode.FrameSize)
 
 
+proc serialize*(self: Header): seq[byte] =
+    result = newSeq[byte](9)
+    result[0] = cast[uint8](self.length shr 16)
+    result[1] = cast[uint8](self.length shr 8)
+    result[2] = cast[uint8](self.length)
+    result[3] = cast[uint8](self.frame_type)
+    result[4] = cast[uint8](self.flags)
+    result[5] = cast[uint8](self.stream_id shr 24)
+    result[6] = cast[uint8](self.stream_id shr 16)
+    result[7] = cast[uint8](self.stream_id shr 8)
+    result[8] = cast[uint8](self.stream_id)
+
+
 type
     Priority* = object
         exclusive*: bool

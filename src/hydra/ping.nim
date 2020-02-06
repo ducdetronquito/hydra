@@ -29,6 +29,19 @@ proc read*(cls: type[PingFrame], header: Header, stream: StringStream): Result[P
     let frame = PingFrame(header: header, opaque_data: stream.readUint64())
     return Ok(frame)
 
+proc serialize*(self: PingFrame): seq[byte] =
+    result = self.header.serialize()
+    result.add(cast[uint8](self.opaque_data shr 56))
+    result.add(cast[uint8](self.opaque_data shr 48))
+    result.add(cast[uint8](self.opaque_data shr 40))
+    result.add(cast[uint8](self.opaque_data shr 32))
+    result.add(cast[uint8](self.opaque_data shr 24))
+    result.add(cast[uint8](self.opaque_data shr 16))
+    result.add(cast[uint8](self.opaque_data shr 8))
+    result.add(cast[uint8](self.opaque_data))
+
+    return result
+
 
 proc is_ack*(self: PingFrame): bool =
     return self.header.flags.bitand(PING_ACK) == PING_ACK
