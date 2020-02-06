@@ -27,3 +27,17 @@ suite "Continuation Frame":
         let header = Header(frame_type: FrameType.Continuation, flags: 3'u8)
         let frame = ContinuationFrame(header: header)
         check(frame.is_end_headers() == false)
+
+    test "Serialize":
+        let header = Header(
+            length: 5'u32,
+            frame_type: FrameType.Continuation,
+            flags: 0'u8,
+            stream_id: StreamId(1'u32)
+        )
+
+        let frame = DataFrame(header: header, data: @[0'u8, 1'u8, 2'u8, 3'u8, 4'u8])
+        check(frame.serialize() == [
+            0'u8, 0'u8, 5'u8, 9'u8, 0'u8, 0'u8, 0'u8, 0'u8, 1'u8,
+            0'u8, 1'u8, 2'u8, 3'u8, 4'u8
+        ])

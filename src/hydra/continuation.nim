@@ -24,3 +24,10 @@ const END_HEADERS = 4'u8
 
 proc is_end_headers*(self: ContinuationFrame): bool =
     return self.header.flags.bitand(END_HEADERS) == END_HEADERS
+
+
+proc serialize*(self: ContinuationFrame): seq[byte] =
+    result = self.header.serialize()
+    result.add(self.header_block_fragment)
+
+    return result
