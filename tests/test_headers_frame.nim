@@ -88,3 +88,37 @@ suite "Headers Frame":
         let header = Header(frame_type: FrameType.Headers, flags: 3'u8)
         let frame = HeadersFrame(header: header)
         check(frame.is_end_headers() == false)
+
+    test "Serialize":
+        let header = Header(frame_type: FrameType.Headers, length: 5'u32, stream_id: 1'u32)
+        let frame = HeadersFrame(header: header, header_block_fragment: @[1'u8, 1'u8, 1'u8, 1'u8, 1'u8])
+        check(frame.serialize() == [
+            0'u8, 0'u8, 5'u8, 1'u8, 0'u8, 0'u8, 0'u8, 0'u8, 1'u8,
+            1'u8, 1'u8, 1'u8, 1'u8, 1'u8,
+        ])
+
+    test "Serialize padded header block":
+        let header = Header(frame_type: FrameType.Headers, length: 10'u32, stream_id: 1'u32, flags: 8'u8)
+        let frame = HeadersFrame(header: header, header_block_fragment: @[1'u8, 1'u8, 1'u8, 1'u8, 1'u8])
+        check(frame.serialize() == [
+            0'u8, 0'u8, 10'u8, 1'u8, 8'u8, 0'u8, 0'u8, 0'u8, 1'u8,
+            5'u8,
+            1'u8, 1'u8, 1'u8, 1'u8, 1'u8,
+            0'u8, 0'u8, 0'u8, 0'u8, 0'u8,
+        ])
+
+    test "Serialize padded header block with priority":
+        let header = Header(frame_type: FrameType.Headers, length: 15'u32, stream_id: 1'u32, flags: 40'u8)
+        let priority = Priority(exclusive: true, stream_dependency: StreamId(7'u32), weight: 42'u8)
+        let frame = HeadersFrame(
+            header: header,
+            priority: some(priority),
+            header_block_fragment: @[1'u8, 1'u8, 1'u8, 1'u8, 1'u8]
+        )
+        check(frame.serialize() == [
+            0'u8, 0'u8, 15'u8, 1'u8, 40'u8, 0'u8, 0'u8, 0'u8, 1'u8,
+            5'u8,
+            128'u8, 0'u8, 0'u8, 7'u8, 42'u8,
+            1'u8, 1'u8, 1'u8, 1'u8, 1'u8,
+            0'u8, 0'u8, 0'u8, 0'u8, 0'u8,
+        ])

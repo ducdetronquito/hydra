@@ -72,4 +72,24 @@ proc is_end_headers*(self: HeadersFrame): bool =
     return self.header.flags.bitand(END_HEADERS) == END_HEADERS
 
 
+proc serialize*(self: HeadersFrame): seq[byte] =
+    result = self.header.serialize()
+
+    let priority_length = if self.has_priority(): 5 else: 0
+    let pad_length = cast[int](self.header.length) - self.header_block_fragment.len() - priority_length
+
+    if pad_length != 0:
+        result.add(cast[uint8](pad_length))
+
+    if priority_length != 0:
+        result.add(self.priority.get().serialize())
+
+    result.add(self.header_block_fragment)
+
+    if pad_length != 0:
+        result.pad(pad_length)
+
+    return result
+
+
 export options
