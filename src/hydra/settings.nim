@@ -1,3 +1,4 @@
+import bytes
 import error_codes
 import flags
 import frame_header
@@ -22,6 +23,10 @@ proc create*(cls: type[Settings], value: uint32): Settings =
         return Settings(value)
     else:
         return Settings.Unknown
+
+
+proc serialize(self: Settings): array[2, byte] =
+    return serialize(uint16(self))
 
 
 type
@@ -80,6 +85,33 @@ proc read*(cls: type[SettingsFrame], header: Header, stream: StringStream): Resu
         remaining_bytes -= 6'u32
 
     return Ok(frame)
+
+
+proc serialize*(self: SettingsFrame): seq[byte] =
+    result = self.header.serialize()
+    if self.header_table_size.isSome:
+        result.add(Settings.HeaderTableSize.serialize())
+        result.add(serialize(self.header_table_size.get()))
+
+    if self.enable_push.isSome:
+        result.add(Settings.EnablePush.serialize())
+        result.add(serialize(uint32(self.enable_push.get())))
+
+    if self.max_concurrent_streams.isSome:
+        result.add(Settings.MaxConcurrentStreams.serialize())
+        result.add(serialize(self.max_concurrent_streams.get()))
+
+    if self.initial_window_size.isSome:
+        result.add(Settings.InitialWindowSize.serialize())
+        result.add(serialize(self.initial_window_size.get()))
+
+    if self.max_frame_size.isSome:
+        result.add(Settings.MaxFrameSize.serialize())
+        result.add(serialize(self.max_frame_size.get()))
+
+    if self.max_header_list_size.isSome:
+        result.add(Settings.MaxHeaderListSize.serialize())
+        result.add(serialize(self.max_header_list_size.get()))
 
 
 export options

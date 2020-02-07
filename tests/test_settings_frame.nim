@@ -69,3 +69,30 @@ suite "Settings Frame":
         let header = Header(frame_type: FrameType.Settings, flags: NO_FLAG)
         let frame = SettingsFrame(header: header)
         check(frame.is_ack() == false)
+
+    test "Serialize":
+        let header = Header(
+            length: 36'u32,
+            frame_type: FrameType.Settings,
+            flags: ACK_FLAG,
+            stream_id: CONNECTION_CONTROL_STREAM_ID
+        )
+
+        let frame = SettingsFrame(
+            header: header,
+            header_table_size: some(11'u32),
+            enable_push: some(true),
+            max_concurrent_streams: some(33'u32),
+            initial_window_size: some(44'u32),
+            max_frame_size: some(55'u32),
+            max_header_list_size: some(66'u32)
+        )
+        check(frame.serialize() == [
+            0'u8, 0'u8, 36'u8, 4'u8, 1'u8, 0'u8, 0'u8, 0'u8, 0'u8,
+            0'u8, 1'u8, 0'u8, 0'u8, 0'u8, 11'u8,
+            0'u8, 2'u8, 0'u8, 0'u8, 0'u8, 1'u8,
+            0'u8, 3'u8, 0'u8, 0'u8, 0'u8, 33'u8,
+            0'u8, 4'u8, 0'u8, 0'u8, 0'u8, 44'u8,
+            0'u8, 5'u8, 0'u8, 0'u8, 0'u8, 55'u8,
+            0'u8, 6'u8, 0'u8, 0'u8, 0'u8, 66'u8,
+        ])

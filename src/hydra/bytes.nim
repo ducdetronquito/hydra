@@ -22,3 +22,8 @@ proc serialize*(value: uint32): array[4, byte] =
     result[1] = byte(value shr 16'u32)
     result[2] = byte(value shr 8'u32)
     result[3] = byte(value)
+
+
+proc serialize*(value: uint16): array[2, byte] =
+    result[0] = byte(value shr 8'u32)
+    result[1] = byte(value)
