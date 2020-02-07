@@ -45,3 +45,10 @@ proc read*(cls: type[GoAwayFrame], header: Header, stream: StringStream): Result
 
     frame.additional_debug_data = data.unwrap()
     return Ok(frame)
+
+
+proc serialize*(self: GoAwayFrame): seq[byte] =
+    result = self.header.serialize()
+    result.add(self.last_stream_id.serialize())
+    result.add(self.error_code.serialize())
+    result.add(self.additional_debug_data)
